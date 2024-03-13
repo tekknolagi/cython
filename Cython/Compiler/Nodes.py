@@ -2582,9 +2582,11 @@ class FuncDefNode(StatNode, BlockNode):
 
 def as_metadata_name(ty):
     return {
+        "int": "T_C_INT",
         "long": "T_C_LONG",
         "PyObject *": "T_PY_OBJECT",
         "double": "T_C_DOUBLE",
+        "float": "T_C_FLOAT",
     }.get(ty.specialization_name())
 
 
