@@ -4082,7 +4082,7 @@ def generate_cfunction_declaration(entry, env, code, definition):
 PyPyTypedMethodMetadata {name}_sig = {{
     .arg_types = {name}_arg_types,
     .ret_type = {ret_type},
-    .underlying_func = {entry.cname},
+    .underlying_func = {name},
     .ml_name = {name},
 }};""")
 

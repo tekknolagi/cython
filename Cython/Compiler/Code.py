@@ -2661,13 +2661,11 @@ class CCodeWriter:
             if preproc_guard:
                 self.putln(preproc_guard)
         if underlying_cfunc:
-            template = '{%s_sig.ml_name, (PyCFunction)%s, %s|METH_TYPED, %s}%s'
-            entry_name = underlying_cfunc.entry.cname
             func_ptr = underlying_cfunc.entry.cname
-        else:
-            template = '{%s, (PyCFunction)%s, %s, %s}%s'
+            entry_name = f"{func_ptr}_sig.ml_name"
+            method_flags.append("METH_TYPED")
         self.putln(
-            template % (
+            '{%s, (PyCFunction)%s, %s, %s}%s' % (
                 entry_name,
                 func_ptr,
                 "|".join(method_flags),
