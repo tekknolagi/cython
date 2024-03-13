@@ -4038,11 +4038,6 @@ def as_metadata_name(ty):
     }.get(ty.specialization_name())
 
 
-def stringify(entry):
-    tys = [arg.type for arg in entry.type.args] + [entry.type.return_type]
-    return " -> ".join(ty.empty_declaration_code() for ty in tys)
-
-
 def generate_cfunction_declaration(entry, env, code, definition):
     from_cy_utility = entry.used and entry.utility_code_definition
     if entry.used and entry.inline_func_in_pxd or (not entry.in_cinclude and (
