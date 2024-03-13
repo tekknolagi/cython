@@ -2752,6 +2752,7 @@ class CFuncDefNode(FuncDefNode):
                                body=py_func_body,
                                decorators=decorators,
                                is_wrapper=1)
+        self.py_func.underlying = self
         self.py_func.is_module_scope = env.is_module_scope
         self.py_func.analyse_declarations(env)
         self.py_func.entry.is_overridable = True
@@ -3855,9 +3856,10 @@ class DefNodeWrapper(FuncDefNode):
                 code.putln('#endif')
 
         if with_pymethdef or self.target.fused_py_func:
+            underlying_cfunc = getattr(self.target, "underlying", None)
             code.put(
                 "static PyMethodDef %s = " % entry.pymethdef_cname)
-            code.put_pymethoddef(self.target.entry, ";", allow_skip=False)
+            code.put_pymethoddef(self.target.entry, ";", allow_skip=False, underlying_cfunc=underlying_cfunc)
         code.putln("%s {" % header)
 
     def generate_argument_declarations(self, env, code):

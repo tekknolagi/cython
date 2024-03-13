@@ -2621,7 +2621,7 @@ class CCodeWriter:
         if entry.in_closure:
             self.put_giveref('Py_None')
 
-    def put_pymethoddef(self, entry, term, allow_skip=True, wrapper_code_writer=None):
+    def put_pymethoddef(self, entry, term, allow_skip=True, wrapper_code_writer=None, underlying_cfunc=None):
         is_number_slot = False
         if entry.is_special or entry.name == '__getattribute__':
             from . import TypeSlots
@@ -2660,8 +2660,14 @@ class CCodeWriter:
             preproc_guard = slot.preprocessor_guard_code()
             if preproc_guard:
                 self.putln(preproc_guard)
+        if underlying_cfunc:
+            template = '{%s_sig.ml_name, (PyCFunction)%s, %s|METH_TYPED, %s}%s'
+            entry_name = underlying_cfunc.entry.cname
+            func_ptr = underlying_cfunc.entry.cname
+        else:
+            template = '{%s, (PyCFunction)%s, %s, %s}%s'
         self.putln(
-            '{%s, (PyCFunction)%s, %s, %s}%s' % (
+            template % (
                 entry_name,
                 func_ptr,
                 "|".join(method_flags),

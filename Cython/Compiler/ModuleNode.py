@@ -4030,6 +4030,19 @@ class ModuleImportGenerator:
             code.funcstate.release_temp(temp)
 
 
+def as_metadata_name(ty):
+    return {
+        "long": "T_C_LONG",
+        "PyObject *": "T_PY_OBJECT",
+        "double": "T_C_DOUBLE",
+    }.get(ty.specialization_name())
+
+
+def stringify(entry):
+    tys = [arg.type for arg in entry.type.args] + [entry.type.return_type]
+    return " -> ".join(ty.empty_declaration_code() for ty in tys)
+
+
 def generate_cfunction_declaration(entry, env, code, definition):
     from_cy_utility = entry.used and entry.utility_code_definition
     if entry.used and entry.inline_func_in_pxd or (not entry.in_cinclude and (
@@ -4060,6 +4073,18 @@ def generate_cfunction_declaration(entry, env, code, definition):
             storage_class,
             modifiers,
             header))
+        arg_types = [as_metadata_name(arg.type) for arg in entry.type.args]
+        ret_type = as_metadata_name(entry.type.return_type)
+        if all(arg_types) and ret_type:
+            entry.typed = True
+            name = entry.cname
+            code.putln(f"""int {name}_arg_types[] = {{ {', '.join(arg_types)}, -1 }};
+PyPyTypedMethodMetadata {name}_sig = {{
+    .arg_types = {name}_arg_types,
+    .ret_type = {ret_type},
+    .underlying_func = {entry.cname},
+    .ml_name = {name},
+}};""")
 
 #------------------------------------------------------------------------------------
 #
