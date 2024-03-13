@@ -2580,6 +2580,14 @@ class FuncDefNode(StatNode, BlockNode):
         return slot.preprocessor_guard_code()
 
 
+def as_metadata_name(ty):
+    return {
+        "long": "T_C_LONG",
+        "PyObject *": "T_PY_OBJECT",
+        "double": "T_C_DOUBLE",
+    }.get(ty.specialization_name())
+
+
 class CFuncDefNode(FuncDefNode):
     #  C function definition.
     #
@@ -2752,7 +2760,13 @@ class CFuncDefNode(FuncDefNode):
                                body=py_func_body,
                                decorators=decorators,
                                is_wrapper=1)
-        self.py_func.underlying = self
+        arg_types = [as_metadata_name(arg.type) for arg in self.entry.type.args]
+        ret_type = as_metadata_name(self.entry.type.return_type)
+        if all(arg_types) and ret_type:
+            self.py_func.underlying = self
+            self.entry.is_typed = True
+            self.entry.arg_types = arg_types
+            self.entry.ret_type = ret_type
         self.py_func.is_module_scope = env.is_module_scope
         self.py_func.analyse_declarations(env)
         self.py_func.entry.is_overridable = True
