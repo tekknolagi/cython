@@ -4068,7 +4068,7 @@ PyPyTypedMethodMetadata {name}_sig = {{
     .arg_types = {name}_arg_types,
     .ret_type = {entry.ret_type},
     .underlying_func = {name},
-    .ml_name = {name},
+    .ml_name = "{name}",
 }};""")
 
 #------------------------------------------------------------------------------------
